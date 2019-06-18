@@ -25,8 +25,8 @@ class App extends Component {
       selectedValues[3]}`;
 
     this.setState(
-      { isQuizStart: true, API, countdownTime: selectedValues[4] },
-      () => console.log(this.state)
+      { isQuizStart: true, API, countdownTime: selectedValues[4] }
+      // , () => console.log(this.state)
     );
   }
 
