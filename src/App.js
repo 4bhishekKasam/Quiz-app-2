@@ -15,6 +15,7 @@ class App extends Component {
       isLoading: false
     };
     this.startQuiz = this.startQuiz.bind(this);
+    this.backToHome = this.backToHome.bind(this);
   }
 
   startQuiz(selectedValues) {
@@ -30,6 +31,18 @@ class App extends Component {
     );
   }
 
+  backToHome() {
+    this.setState({ isLoading: true });
+    setTimeout(() => {
+      this.setState({
+        isLoading: false,
+        isQuizStart: false,
+        API: null,
+        countdownTime: null
+      });
+    }, 1000);
+  }
+
   render() {
     const { isQuizStart, API, countdownTime, isLoading } = this.state;
 
@@ -37,7 +50,9 @@ class App extends Component {
       <Fragment>
         <Header />
         {!isQuizStart && !isLoading && <Main startQuiz={this.startQuiz} />}
-        {isQuizStart && !isLoading && <Quiz API={API} />}
+        {isQuizStart && !isLoading && (
+          <Quiz API={API} backToHome={this.backToHome} />
+        )}
       </Fragment>
     );
   }

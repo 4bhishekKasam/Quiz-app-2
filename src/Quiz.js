@@ -22,10 +22,13 @@ export default class Quiz extends Component {
       questionIndex: 0,
       isLoading: true,
       quizIsCompleted: false,
-      isOffline: false
+      isOffline: false,
+      userSelectedAns: null
     };
     this.resolveError = this.resolveError.bind(this);
     this.setData = this.setData.bind(this);
+    this.timesUp = this.timesUp.bind(this);
+    this.timeAmount = this.timeAmount.bind(this);
     this.getRandomNumber = this.getRandomNumber.bind(this);
   }
 
@@ -51,10 +54,10 @@ export default class Quiz extends Component {
         title: "Oops...",
         html: message,
         type: "error",
-        timer: 5000
-        //  onClose: () => {
-        //     this.props.backToHome();
-        //   }
+        timer: 5000,
+        onClose: () => {
+          this.props.backToHome();
+        }
       });
     }
 
@@ -83,13 +86,31 @@ export default class Quiz extends Component {
     }
   }
 
+  timesUp() {
+    this.setState({
+      userSlectedAns: null,
+      isLoading: true,
+      quizIsCompleted: true,
+      questionIndex: 0,
+      options: null
+    });
+  }
+
+  timeAmount(timerTime, totalTime) {
+    this.takenTime = {
+      timerTime,
+      totalTime
+    };
+  }
+
   render() {
     const {
       isLoading,
       isOffline,
       quizIsCompleted,
       quizData,
-      questionIndex
+      questionIndex,
+      options
     } = this.state;
 
     return (
@@ -110,8 +131,21 @@ export default class Quiz extends Component {
                           }`}
                         </Header.Content>
                       </Header>
-                      <Countdown countdownTime={this.props.countdownTime} />
+                      <Countdown
+                        countdownTime={this.props.countdownTime}
+                        timesUp={this.timesUp}
+                        timeAmount={this.timeAmount}
+                      />
                     </Item.Extra>
+                    <br />
+                    <Item.Meta>
+                      <Message size="huge" floating>
+                        <b>{`Q. ${he.decode(
+                          quizData[questionIndex].question
+                        )}`}</b>
+                      </Message>
+                      <br />
+                    </Item.Meta>
                   </Item.Content>
                 </Item>
               </Item.Group>
