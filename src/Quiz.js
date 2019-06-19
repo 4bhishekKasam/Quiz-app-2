@@ -11,6 +11,8 @@ import {
   Header
 } from "semantic-ui-react";
 import Swal from "sweetalert2";
+import Loader from "./Loader";
+import Countdown from "./Countdown";
 
 export default class Quiz extends Component {
   constructor(props) {
@@ -82,11 +84,40 @@ export default class Quiz extends Component {
   }
 
   render() {
-    const { isLoading, isOffline, quizIsCompleted, quizData } = this.state;
+    const {
+      isLoading,
+      isOffline,
+      quizIsCompleted,
+      quizData,
+      questionIndex
+    } = this.state;
 
     return (
       <Item.Header>
         {!isOffline && !quizIsCompleted && isLoading && <Loader />}
+        {!isOffline && !isLoading && (
+          <Container>
+            <Segment raised>
+              <Item.Group divided>
+                <Item>
+                  <Item.Content>
+                    <Item.Extra>
+                      <Header as="h1" block floated="left">
+                        <Icon name="info circle" />
+                        <Header.Content>
+                          {`Question No.${questionIndex + 1} of ${
+                            quizData.length
+                          }`}
+                        </Header.Content>
+                      </Header>
+                      <Countdown countdownTime={this.props.countdownTime} />
+                    </Item.Extra>
+                  </Item.Content>
+                </Item>
+              </Item.Group>
+            </Segment>
+          </Container>
+        )}
       </Item.Header>
     );
   }
