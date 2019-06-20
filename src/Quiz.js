@@ -11,6 +11,7 @@ import {
   Header
 } from "semantic-ui-react";
 import Swal from "sweetalert2";
+import he from "he";
 import Loader from "./Loader";
 import Countdown from "./Countdown";
 
@@ -30,6 +31,8 @@ export default class Quiz extends Component {
     this.timesUp = this.timesUp.bind(this);
     this.timeAmount = this.timeAmount.bind(this);
     this.getRandomNumber = this.getRandomNumber.bind(this);
+    this.handleItemClick = this.handleItemClick.bind(this);
+    this.handleNext = this.handleNext.bind(this);
   }
 
   componentDidMount() {
@@ -103,6 +106,21 @@ export default class Quiz extends Component {
     };
   }
 
+  handleItemClick(e, { name }) {
+    this.setState({ userSlectedAns: name });
+  }
+
+  handleNext() {
+    const {
+      userSlectedAns,
+      quizData,
+      questionIndex,
+      correctAnswers
+    } = this.state;
+
+    
+  }
+
   render() {
     const {
       isLoading,
@@ -110,7 +128,8 @@ export default class Quiz extends Component {
       quizIsCompleted,
       quizData,
       questionIndex,
-      options
+      options,
+      userSlectedAns
     } = this.state;
 
     return (
@@ -145,7 +164,70 @@ export default class Quiz extends Component {
                         )}`}</b>
                       </Message>
                       <br />
+                      <Item.Description>
+                        <h3>Please choose one of the following answers:</h3>
+                      </Item.Description>
+                      <Divider />
+                      <Menu vertical fluid size="massive">
+                        {options.map((item, index) => {
+                          let letter;
+                          switch (index) {
+                            case 0:
+                              letter = "A.";
+                              break;
+                            case 1:
+                              letter = "B.";
+                              break;
+                            case 0:
+                              letter = "C.";
+                              break;
+                            case 1:
+                              letter = "D.";
+                              break;
+                            default:
+                              letter = index;
+                              break;
+                          }
+                          return (
+                            <Menu.Item
+                              key={item}
+                              name={item}
+                              active={userSlectedAns === item}
+                              onClick={this.handleItemClick}
+                            >
+                              <b style={{ marginRight: "8px" }}>{letter}</b>
+                              {he.decode(item)}
+                            </Menu.Item>
+                          );
+                        })}
+                      </Menu>
                     </Item.Meta>
+                    <Divider />
+                    <Item.Extra>
+                      {" "}
+                      {!userSlectedAns && (
+                        <Button
+                          primary
+                          content="Next"
+                          floated="right"
+                          disabled
+                          size="big"
+                          icon="right chevron"
+                          labelPosition="right"
+                        />
+                      )}
+                      {userSlectedAns && (
+                        <Button
+                          primary
+                          content="Next"
+                          onClick={this.handleNext}
+                          floated="right"
+                          size="big"
+                          icon="right chevron"
+                          labelPosition="right"
+                        />
+                      )}
+                    </Item.Extra>
                   </Item.Content>
                 </Item>
               </Item.Group>

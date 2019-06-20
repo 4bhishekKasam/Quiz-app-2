@@ -3,6 +3,7 @@ import { PATH_BASE, AMOUNT, CATEGORY, DIFFICULTY, TYPE } from "./types";
 import "./App.css";
 import Header from "./Header";
 import Main from "./Main";
+import Loader from "./Loader";
 import Quiz from "./Quiz";
 
 class App extends Component {
@@ -51,8 +52,13 @@ class App extends Component {
         <Header />
         {!isQuizStart && !isLoading && <Main startQuiz={this.startQuiz} />}
         {isQuizStart && !isLoading && (
-          <Quiz API={API} backToHome={this.backToHome} />
+          <Quiz
+            API={API}
+            backToHome={this.backToHome}
+            countdownTime={countdownTime}
+          />
         )}
+        {isLoading && <Loader />}
       </Fragment>
     );
   }
