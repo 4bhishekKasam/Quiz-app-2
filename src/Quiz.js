@@ -14,6 +14,7 @@ import Swal from "sweetalert2";
 import he from "he";
 import Loader from "./Loader";
 import Countdown from "./Countdown";
+import Result from "./Result";
 
 export default class Quiz extends Component {
   constructor(props) {
@@ -24,15 +25,21 @@ export default class Quiz extends Component {
       isLoading: true,
       quizIsCompleted: false,
       isOffline: false,
-      userSelectedAns: null
+      userSelectedAns: null,
+      correctAnswers: 0
     };
-    this.resolveError = this.resolveError.bind(this);
-    this.setData = this.setData.bind(this);
-    this.timesUp = this.timesUp.bind(this);
-    this.timeAmount = this.timeAmount.bind(this);
+    this.takenTime = undefined;
+
     this.getRandomNumber = this.getRandomNumber.bind(this);
+    this.setData = this.setData.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
     this.handleNext = this.handleNext.bind(this);
+    this.timesUp = this.timesUp.bind(this);
+    this.timeAmount = this.timeAmount.bind(this);
+    this.renderResult = this.renderResult.bind(this);
+    this.retakeQuiz = this.retakeQuiz.bind(this);
+    //  this.startNewQuiz = this.startNewQuiz.bind(this);
+    this.resolveError = this.resolveError.bind(this);
   }
 
   componentDidMount() {
@@ -66,11 +73,11 @@ export default class Quiz extends Component {
 
     const quizData = results;
     const { questionIndex } = this.state;
-    const num = this.getRandomNumber();
+    const outPut = this.getRandomNumber();
     const options = [...quizData[questionIndex].incorrect_answers];
-    options.splice(num, 0, quizData[questionIndex].correct_answer);
+    options.splice(outPut, 0, quizData[questionIndex].correct_answer);
 
-    this.setState({ options, quizData, isLoading: false, num });
+    this.setState({ options, quizData, isLoading: false, outPut });
   }
 
   getRandomNumber() {
@@ -118,8 +125,56 @@ export default class Quiz extends Component {
       correctAnswers
     } = this.state;
 
-    
+    let point = 0;
+    if (userSlectedAns === quizData[questionIndex].correct_answer) {
+      point = 1;
+    }
+
+    if (questionIndex === quizData.length - 1) {
+      this.setState({
+        correctAnswers: correctAnswers + point,
+        quizIsCompleted: true,
+        isLoading: true,
+        userSelectedAns: null,
+        questionIndex: 0,
+        options: null
+      });
+      return false;
+    }
+
+    const outPut = this.getRandomNumber();
+
+    const options = [...quizData[questionIndex + 1].incorrect_answers];
+    options.splice(outPut, 0, quizData[questionIndex + 1].correct_answer);
+    this.setState({
+      correctAnswers: correctAnswers + point,
+      questionIndex: questionIndex + 1,
+      userSlectedAns: null,
+      options,
+      outPut
+    });
   }
+
+  renderResult() {
+    setTimeout(() => {
+      const { quizData, correctAnswers } = this.state;
+      const { backToHome } = this.props;
+
+      const resultRef = (
+        <Result
+          totalQuestions={quizData.length}
+          correctAnswers={correctAnswers}
+          retakeQuiz={this.retakeQuiz}
+          backToHome={backToHome}
+          takenTime={this.takenTime}
+        />
+      );
+
+      this.setState({ resultRef });
+    }, 2000);
+  }
+
+  retakeQuiz() {}
 
   render() {
     const {
@@ -129,8 +184,13 @@ export default class Quiz extends Component {
       quizData,
       questionIndex,
       options,
-      userSlectedAns
+      userSlectedAns,
+      resultRef
     } = this.state;
+
+    if (quizIsCompleted && !resultRef) {
+      this.renderResult();
+    }
 
     return (
       <Item.Header>
@@ -169,23 +229,23 @@ export default class Quiz extends Component {
                       </Item.Description>
                       <Divider />
                       <Menu vertical fluid size="massive">
-                        {options.map((item, index) => {
+                        {options.map((item, i) => {
                           let letter;
-                          switch (index) {
+                          switch (i) {
                             case 0:
                               letter = "A.";
                               break;
                             case 1:
                               letter = "B.";
                               break;
-                            case 0:
+                            case 2:
                               letter = "C.";
                               break;
-                            case 1:
+                            case 3:
                               letter = "D.";
                               break;
                             default:
-                              letter = index;
+                              letter = i;
                               break;
                           }
                           return (
@@ -233,6 +293,9 @@ export default class Quiz extends Component {
               </Item.Group>
             </Segment>
           </Container>
+        )}
+        {quizIsCompleted && !resultRef && (
+          <Loader text="Getting your result." />
         )}
       </Item.Header>
     );
