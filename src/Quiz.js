@@ -15,6 +15,7 @@ import he from "he";
 import Loader from "./Loader";
 import Countdown from "./Countdown";
 import Result from "./Result";
+import Offline from "./Offline";
 
 export default class Quiz extends Component {
   constructor(props) {
@@ -174,7 +175,30 @@ export default class Quiz extends Component {
     }, 2000);
   }
 
-  retakeQuiz() {}
+  retakeQuiz() {
+    const { quizData, questionIndex } = this.state;
+    const outPut = this.getRandomNumber();
+    const options = [...quizData[questionIndex].incorrect_answers];
+    options.splice(outPut, 0, quizData[questionIndex].correct_answer);
+
+    this.setState({
+      correctAnswers: 0,
+      quizIsCompleted: false,
+      startNewQuiz: true,
+      options,
+      outPut
+    });
+  }
+
+  startNewQuiz() {
+    setTimeout(() => {
+      this.setState({
+        isLoading: false,
+        startNewQuiz: false,
+        resultRef: null
+      });
+    }, 1000);
+  }
 
   render() {
     const {
@@ -185,11 +209,16 @@ export default class Quiz extends Component {
       questionIndex,
       options,
       userSlectedAns,
-      resultRef
+      resultRef,
+      startNewQuiz
     } = this.state;
 
     if (quizIsCompleted && !resultRef) {
       this.renderResult();
+    }
+
+    if (startNewQuiz) {
+      this.startNewQuiz();
     }
 
     return (
@@ -297,6 +326,8 @@ export default class Quiz extends Component {
         {quizIsCompleted && !resultRef && (
           <Loader text="Getting your result." />
         )}
+        {quizIsCompleted && resultRef}
+        {isOffline && <Offline />}
       </Item.Header>
     );
   }
